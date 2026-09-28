@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ᴙ ᢗͳ𑜅ꛤ𑜅𖬕ⲥᴙ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#09090b',
+                        darkCard: '#121215',
+                        darkBorder: '#27272a',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #09090b; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+    </style>
+</head>
+<body class="bg-darkBg text-zinc-100 min-h-screen font-sans flex flex-col antialiased selection:bg-zinc-800 selection:text-zinc-100">
+
+    <header class="border-b border-darkBorder py-4 px-6 mb-6">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-sm font-mono tracking-wider text-zinc-400 lowercase">
+                symbol replacer
+            </h1>
+            <span class="text-xs text-zinc-600 font-mono lowercase">v2.0</span>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 flex-grow pb-12">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+
+            <section class="flex flex-col bg-darkCard border border-darkBorder rounded-xl p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-xs font-mono text-zinc-500 lowercase">
+                        input
+                    </h2>
+                    <button id="clearInputBtn" class="text-xs text-zinc-600 hover:text-zinc-300 transition-colors lowercase">
+                        clear
+                    </button>
+                </div>
+                <textarea 
+                    id="inputText" 
+                    rows="16" 
+                    placeholder="type something..."
+                    class="w-full flex-grow p-4 rounded-lg bg-zinc-950/70 border border-darkBorder focus:border-zinc-500 outline-none resize-none font-mono text-sm text-zinc-200 placeholder-zinc-700 transition-colors leading-relaxed"
+                ></textarea>
+                <div class="mt-3 flex justify-between items-center text-xs text-zinc-600 font-mono lowercase">
+                    <span id="charCount">0 chars</span>
+                    <span id="replaceableCount">0 replaceable</span>
+                </div>
+            </section>
+            <section class="flex flex-col bg-darkCard border border-darkBorder rounded-xl p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-xs font-mono text-zinc-500 lowercase">
+                        variants (5)
+                    </h2>
+                    <button id="regenerateBtn" class="text-xs text-zinc-400 hover:text-zinc-100 bg-zinc-900 hover:bg-zinc-800 border border-darkBorder px-2.5 py-1 rounded transition-colors lowercase">
+                        regenerate
+                    </button>
+                </div>
+
+                <div id="variantsContainer" class="flex flex-col gap-3 flex-grow overflow-y-auto pr-1">
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        const charMap = {
+            'а': ['ล','𑜅'], //
+            'б': 'চ', // 
+            'в': ['ß','ẞؚ'], //
+            'г': 'ᠵ', //
+            'д': ['𐑔','∂'], //
+            'е': ['ᧉ','𞄑'], //
+            'ё': 'ᧉۭ̈ ', //
+            'ж': ['җ','ᛤ','Ӂ'], // 
+            'з': ['პ','ჴ'], //
+            'и': '𑜑', //
+            'й': 'ҋ', // 
+            'к': ['𐓤','𖭗ۙ'], //
+            'л': ['𖬂','ԓ','𖬕'], //
+            'м': ['ⲙ','𐒄'], // 
+            'н': ['ዛ','𐡲','𐡧'], //
+            'о': ['০','ᦢ'], // 
+            'п': ['η','π','ก'], // 
+            'р': ['ꛤ','ᱞ'], // 
+            'с': ['ᢗ','ⲥ'], // 
+            'т': ['ͳ','ϯ'], // 
+            'у': '𐔤', //
+            'ф': 'ჶ', //
+            'х': ['𐳕','ꭓ'], //
+            'ц': 'ꚏ', //
+            'ч': ['५','ᤘ','𑋵֡'], // 
+            'ш': ['ឃ','ω'],//
+            'щ': 'ꚗ', //
+            'ъ': 'ѣ', // 123123123
+            'ы': ['ꙑ','᥇ﺃ'], //
+            'ь': ['๖'], // 
+            'э': '∍', // 123123123
+            'ю': 'ᘘ', //
+            'я': ['ᴙ'], // 
+
+            'А': 'Ꭿ', //
+            'Б': 'Ҕ', //
+            'В': 'ۣۨƁ', //
+            'Г': '┍', //
+            'Д': '',
+            'Е': '',
+            'Ё': '',
+            'Ж': '',
+            'З': '𖭕', //
+            'И': '',
+            'Й': '',
+            'К': '',
+            'Л': '',
+            'М': 'Ⲙ', //
+            'Н': '',
+            'О': '',
+            'П': 'Ԥ', //
+            'Р': '',
+            'С': 'Ƈ', //
+            'Т': '',
+            'У': '',
+            'Ф': '',
+            'Х': '',
+            'Ц': '',
+            'Ч': '',
+            'Ш': '',
+            'Щ': '',
+            'Ъ': '',
+            'Ы': '',
+            'Ь': '',
+            'Э': '℈', //
+            'Ю': '',
+            'Я': 'ۜ𞤇' // 
+        };
+
+        const inputText = document.getElementById('inputText');
+        const charCount = document.getElementById('charCount');
+        const replaceableCount = document.getElementById('replaceableCount');
+        const variantsContainer = document.getElementById('variantsContainer');
+        const clearInputBtn = document.getElementById('clearInputBtn');
+        const regenerateBtn = document.getElementById('regenerateBtn');
+
+        function getRandomReplacement(char) {
+            const repl = charMap[char];
+            if (!repl) return char;
+            if (Array.isArray(repl)) {
+                return repl[Math.floor(Math.random() * repl.length)];
+            }
+            return repl;
+        }
+
+        function copyToClipboard(text, btnElement, originalText = "copy") {
+            if (!text) return;
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text);
+            } else {
+                const ta = document.createElement("textarea");
+                ta.value = text;
+                ta.style.position = "fixed";
+                ta.style.left = "-999999px";
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+            }
+            if (btnElement) {
+                btnElement.textContent = "copied";
+                btnElement.classList.add("bg-emerald-900/40", "border-emerald-600", "text-emerald-200");
+                setTimeout(() => {
+                    btnElement.textContent = originalText;
+                    btnElement.classList.remove("bg-emerald-900/40", "border-emerald-600", "text-emerald-200");
+                }, 1500);
+            }
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function render5Variants(text) {
+            variantsContainer.innerHTML = '';
+
+            if (!text.trim()) {
+                variantsContainer.innerHTML = `<div class="text-xs text-zinc-700 font-mono text-center py-12 lowercase">no input</div>`;
+                return;
+            }
+
+            for (let i = 1; i <= 5; i++) {
+                const generatedText = text.split('').map(getRandomReplacement).join('');
+
+                const card = document.createElement('div');
+                card.className = "bg-zinc-950/70 border border-darkBorder rounded-lg p-3 flex flex-col justify-between gap-2 hover:border-zinc-700 transition-colors";
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center text-[10px] text-zinc-600 font-mono lowercase">
+                        <span>#${i}</span>
+                    </div>
+                    <div class="font-mono text-sm text-zinc-300 break-all leading-snug line-clamp-3">${escapeHtml(generatedText)}</div>
+                    <button class="copy-var-btn self-end mt-1 text-xs px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 border border-darkBorder text-zinc-500 hover:text-zinc-200 rounded font-mono transition-colors active:scale-95 lowercase">
+                        copy
+                    </button>
+                `;
+
+                const copyBtn = card.querySelector('.copy-var-btn');
+                copyBtn.addEventListener('click', () => copyToClipboard(generatedText, copyBtn, "copy"));
+
+                variantsContainer.appendChild(card);
+            }
+        }
+
+        function handleInput() {
+            const val = inputText.value;
+            charCount.textContent = `${val.length} chars`;
+
+            let cnt = 0;
+            for (const ch of val) if (charMap[ch]) cnt++;
+            replaceableCount.textContent = `${cnt} replaceable`;
+
+            render5Variants(val);
+        }
+
+        inputText.addEventListener('input', handleInput);
+
+        regenerateBtn.addEventListener('click', () => {
+            render5Variants(inputText.value);
+        });
+
+        clearInputBtn.addEventListener('click', () => {
+            inputText.value = '';
+            handleInput();
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            handleInput();
+        });
+    </script>
+</body>
+</html>
